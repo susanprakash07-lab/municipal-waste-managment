@@ -24,11 +24,16 @@ const reportsRoutes = require('./routes/reportsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
+app.disable('x-powered-by');
 
-// Normalize request URL if rewritten by Vercel Edge
+// Normalize request URL if rewritten by Vercel
 app.use((req, res, next) => {
-  if (req.headers && req.headers['x-matched-path']) {
-    req.url = req.headers['x-matched-path'];
+  if (req.url && req.url.includes('index.js')) {
+    if (req.originalUrl && !req.originalUrl.includes('index.js')) {
+      req.url = req.originalUrl;
+    } else {
+      req.url = req.url.replace(/\/api\/index\.js/g, '/api').replace(/\/index\.js/g, '') || '/';
+    }
   }
   next();
 });
@@ -37,7 +42,8 @@ app.use((req, res, next) => {
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: false,
-  crossOriginOpenerPolicy: false
+  crossOriginOpenerPolicy: false,
+  hidePoweredBy: false
 }));
 
 app.use(cors({
@@ -71,21 +77,14 @@ app.use(async (req, res, next) => {
 
   try {
     const conn = await connectDB();
-    if (!conn && process.env.VERCEL) {
-      return res.status(503).json({
-        success: false,
-        message: 'Database not connected. Please configure MONGO_URI in your Vercel Project Settings > Environment Variables.',
-        hint: 'Add your MongoDB Atlas connection string in Vercel.'
-      });
+    if (!conn) {
+      req.isDemoMode = true;
     }
     next();
   } catch (err) {
-    console.error('Database connection middleware error:', err.message);
-    return res.status(503).json({
-      success: false,
-      message: 'Failed to establish database connection.',
-      error: err.message
-    });
+    console.warn('Database connection warning (falling back to demo mode):', err.message);
+    req.isDemoMode = true;
+    next();
   }
 });
 

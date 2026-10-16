@@ -12,6 +12,32 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_municipal_waste_mgmt_key_2026_secure');
+
+      // Demo token bypass for offline/cloud demo mode
+      if (decoded.id === '67b000000000000000000001') {
+        req.user = {
+          _id: '67b000000000000000000001',
+          id: '67b000000000000000000001',
+          name: 'Municipal Administrator (Demo)',
+          email: 'admin@municipal.com',
+          role: 'ADMIN',
+          department: 'Administration',
+          isActive: true
+        };
+        return next();
+      }
+      if (decoded.id === '67b000000000000000000002') {
+        req.user = {
+          _id: '67b000000000000000000002',
+          id: '67b000000000000000000002',
+          name: 'Field Officer (Demo)',
+          email: 'staff@municipal.com',
+          role: 'STAFF',
+          department: 'Operations & Collections',
+          isActive: true
+        };
+        return next();
+      }
       
       const user = await User.findById(decoded.id).select('-password');
       if (!user) {

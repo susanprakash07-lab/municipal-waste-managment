@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -25,8 +26,50 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Fallback for cloud demo mode when external MongoDB is not yet configured
+    if (req.isDemoMode || !mongoose.connection || mongoose.connection.readyState !== 1) {
+      if (cleanEmail === 'admin@municipal.com' && password === 'Admin@123') {
+        const demoUser = {
+          _id: '67b000000000000000000001',
+          name: 'Municipal Administrator (Demo)',
+          email: 'admin@municipal.com',
+          role: 'ADMIN',
+          department: 'Administration',
+          phone: '+91 98765 43210',
+          createdAt: new Date().toISOString()
+        };
+        const token = generateToken(demoUser._id);
+        return res.status(200).json({
+          success: true,
+          token,
+          user: demoUser,
+          message: 'Welcome back, Administrator!'
+        });
+      }
+      if (cleanEmail === 'staff@municipal.com' && password === 'Staff@123') {
+        const demoUser = {
+          _id: '67b000000000000000000002',
+          name: 'Field Officer (Demo)',
+          email: 'staff@municipal.com',
+          role: 'STAFF',
+          department: 'Operations & Collections',
+          phone: '+91 98765 43211',
+          createdAt: new Date().toISOString()
+        };
+        const token = generateToken(demoUser._id);
+        return res.status(200).json({
+          success: true,
+          token,
+          user: demoUser,
+          message: 'Welcome back, Field Officer!'
+        });
+      }
+    }
+
+    // Check for user in MongoDB
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
     if (!user) {
       return res.status(401).json({

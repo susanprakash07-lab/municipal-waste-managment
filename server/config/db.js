@@ -20,8 +20,8 @@ const connectDB = async () => {
   const isVercel = Boolean(process.env.VERCEL);
   const uri = process.env.MONGO_URI;
 
-  if (isVercel && !uri) {
-    console.warn('⚠️ MONGO_URI is not set in Vercel environment variables. Running in demo mode.');
+  if (isVercel && (!uri || uri.includes('127.0.0.1') || uri.includes('localhost'))) {
+    console.warn('⚠️ Localhost/Missing MONGO_URI on Vercel. Running in instant cloud demo mode.');
     return null;
   }
 
