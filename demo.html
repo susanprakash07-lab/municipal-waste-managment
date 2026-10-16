@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Tracking System for Municipal Waste Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-emerald-600/20">
+          🌿
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+            MuniWaste<span class="text-emerald-600">Track</span>
+          </h1>
+          <p class="text-[11px] font-medium text-slate-400">Digital Tracking System for Municipal Waste Management</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
+          ● System Active (MERN)
+        </span>
+        <div class="flex items-center gap-2 border-l border-slate-200 pl-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">
+            A
+          </div>
+          <span class="text-xs font-semibold text-slate-700 hidden sm:inline">Admin (Rajesh Sharma)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="bg-white border-b border-slate-200 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex space-x-1 sm:space-x-4 overflow-x-auto py-2">
+      <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-3 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-emerald-600 text-white shadow-xs">
+        📊 Dashboard
+      </button>
+      <button onclick="switchTab('segregation')" id="tab-segregation" class="nav-tab px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        📦 Waste Segregation
+      </button>
+      <button onclick="switchTab('collection')" id="tab-collection" class="nav-tab px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        🚛 Collection Fleet
+      </button>
+      <button onclick="switchTab('processing')" id="tab-processing" class="nav-tab px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        ⚙️ Processing (MRF)
+      </button>
+      <button onclick="switchTab('landfill')" id="tab-landfill" class="nav-tab px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        ⛰️ Landfill Sites
+      </button>
+      <button onclick="switchTab('reports')" id="tab-reports" class="nav-tab px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        📑 Reports & CSV
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
+
+    <!-- 1. DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view-content space-y-6">
+      <!-- Critical Alert -->
+      <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-xs">
+        <span class="text-xl">⚠️</span>
+        <div>
+          <h4 class="text-sm font-bold">Landfill Airspace Alert: Bellahalli Quarry Pit</h4>
+          <p class="text-xs text-amber-700 mt-0.5">Current utilization is at 93.3% (Critical Warning). Divert waste trucks to Kanakapura Regional Landfill.</p>
+        </div>
+      </div>
+
+      <!-- 8 KPI Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 uppercase">Total Collected</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">40.4 <span class="text-xs text-slate-500 font-normal">tons</span></p>
+          <span class="text-[11px] text-emerald-600 font-semibold mt-2 block">↑ +12% this week</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 uppercase">Total Processed</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">32.8 <span class="text-xs text-slate-500 font-normal">tons</span></p>
+          <span class="text-[11px] text-blue-600 font-semibold mt-2 block">Composting & MRF</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-teal-100 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 uppercase">Total Recycled</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">28.4 <span class="text-xs text-slate-500 font-normal">tons</span></p>
+          <span class="text-[11px] text-teal-600 font-semibold mt-2 block">Circular Recovery</span>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+          <span class="text-xs font-semibold text-slate-400 uppercase">Landfill Inflow</span>
+          <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">1,325 <span class="text-xs text-slate-500 font-normal">tons</span></p>
+          <span class="text-[11px] text-amber-600 font-semibold mt-2 block">6 Sites Monitored</span>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-1">Waste Stream Characterization</h3>
+          <p class="text-xs text-slate-400 mb-4">Volume breakdown across sorted municipal fractions</p>
+          <div class="h-64">
+            <canvas id="wasteTypeChart"></canvas>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-1">Monthly Waste Collection Trend</h3>
+          <p class="text-xs text-slate-400 mb-4">Cumulative monthly collection over fiscal year</p>
+          <div class="h-64">
+            <canvas id="monthlyTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. SEGREGATION VIEW -->
+    <div id="view-segregation" class="view-content hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Ward Waste Segregation Logs</h2>
+          <p class="text-xs text-slate-500">Source separation records across collection depots</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
+            <tr>
+              <th class="px-5 py-3">Record ID</th>
+              <th class="px-5 py-3">Collection Point</th>
+              <th class="px-5 py-3">Stream</th>
+              <th class="px-5 py-3">Quantity</th>
+              <th class="px-5 py-3">Officer</th>
+              <th class="px-5 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">SEG-1001</td>
+              <td class="px-5 py-3 font-medium text-slate-800">Indiranagar Ward 4 Transfer Station</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-semibold">Organic</span></td>
+              <td class="px-5 py-3 font-bold text-slate-900">4,250 kg</td>
+              <td class="px-5 py-3 text-xs">Priya Verma</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">SEG-1002</td>
+              <td class="px-5 py-3 font-medium text-slate-800">Koramangala 5th Block Depot</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-semibold">Plastic</span></td>
+              <td class="px-5 py-3 font-bold text-slate-900">1,850 kg</td>
+              <td class="px-5 py-3 text-xs">Ramesh Babu</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">SEG-1006</td>
+              <td class="px-5 py-3 font-medium text-slate-800">Electronic City Phase 1 Point</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-semibold">E-Waste</span></td>
+              <td class="px-5 py-3 font-bold text-slate-900">520 kg</td>
+              <td class="px-5 py-3 text-xs">Anil Kumble</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-semibold">In Progress</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. COLLECTION VIEW -->
+    <div id="view-collection" class="view-content hidden space-y-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Vehicle Fleet Collection Logs</h2>
+        <p class="text-xs text-slate-500">Primary and secondary transit manifest records</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
+            <tr>
+              <th class="px-5 py-3">Trip ID</th>
+              <th class="px-5 py-3">Location & Zone</th>
+              <th class="px-5 py-3">Vehicle Plate</th>
+              <th class="px-5 py-3">Crew</th>
+              <th class="px-5 py-3">Payload</th>
+              <th class="px-5 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">COL-1001</td>
+              <td class="px-5 py-3">Indiranagar 100ft Road (East Zone)</td>
+              <td class="px-5 py-3 font-mono font-semibold bg-slate-100 px-2 py-0.5 rounded text-xs">KA-03-GA-1024</td>
+              <td class="px-5 py-3 text-xs">D: Manjunath | C: Gopal</td>
+              <td class="px-5 py-3 font-bold text-slate-900">3.8 tons (Organic)</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">COL-1002</td>
+              <td class="px-5 py-3">Koramangala Sony World (South Zone)</td>
+              <td class="px-5 py-3 font-mono font-semibold bg-slate-100 px-2 py-0.5 rounded text-xs">KA-05-MM-2201</td>
+              <td class="px-5 py-3 text-xs">D: Suresh | C: Babu</td>
+              <td class="px-5 py-3 font-bold text-slate-900">2.1 tons (Plastic)</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. PROCESSING VIEW -->
+    <div id="view-processing" class="view-content hidden space-y-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Waste Processing & Conversion</h2>
+        <p class="text-xs text-slate-500">Biological composting and material recovery efficiency</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500 border-b border-slate-100">
+            <tr>
+              <th class="px-5 py-3">Batch ID</th>
+              <th class="px-5 py-3">Facility</th>
+              <th class="px-5 py-3">Method & Output</th>
+              <th class="px-5 py-3">Input / Processed</th>
+              <th class="px-5 py-3">Efficiency (%)</th>
+              <th class="px-5 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">PRC-1001</td>
+              <td class="px-5 py-3 font-medium text-slate-800">Mavallipura Central Bio-Compost Plant</td>
+              <td class="px-5 py-3 text-xs">Composting ➔ Organic Fertilizer</td>
+              <td class="px-5 py-3 font-bold text-slate-900">21.5 / 25.0 tons</td>
+              <td class="px-5 py-3 font-extrabold text-emerald-700">86.0%</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3 font-mono font-bold text-xs text-slate-800">PRC-1002</td>
+              <td class="px-5 py-3 font-medium text-slate-800">Whitefield Material Recovery Facility (MRF)</td>
+              <td class="px-5 py-3 text-xs">Recovery ➔ Shredded Polymer Flakes</td>
+              <td class="px-5 py-3 font-bold text-slate-900">12.6 / 14.0 tons</td>
+              <td class="px-5 py-3 font-extrabold text-emerald-700">90.0%</td>
+              <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. LANDFILL VIEW -->
+    <div id="view-landfill" class="view-content hidden space-y-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Sanitary Landfill Airspace Telemetry</h2>
+        <p class="text-xs text-slate-500">Threshold alerts, remaining capacity, and weighbridge inflows</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900">Mittaganahalli Landfill</h3>
+            <span class="px-2 py-0.5 text-xs font-bold rounded bg-orange-100 text-orange-800">High Warning (86%)</span>
+          </div>
+          <p class="text-xs text-slate-500">Mittaganahalli, North East Bengaluru</p>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div class="bg-orange-500 h-full rounded-full" style="width: 86%;"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-600">
+            <span>Used: <strong>215,000 tons</strong></span>
+            <span>Capacity: <strong>250,000 tons</strong></span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900">Bellahalli Quarry Pit</h3>
+            <span class="px-2 py-0.5 text-xs font-bold rounded bg-rose-100 text-rose-800 animate-pulse">Critical Alert (93%)</span>
+          </div>
+          <p class="text-xs text-slate-500">Bellahalli, Yelahanka Zone</p>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div class="bg-rose-600 h-full rounded-full" style="width: 93%;"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-600">
+            <span>Used: <strong>168,000 tons</strong></span>
+            <span>Capacity: <strong>180,000 tons</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. REPORTS VIEW -->
+    <div id="view-reports" class="view-content hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Official Municipal Audit Reports</h2>
+          <p class="text-xs text-slate-500">Export CSV summaries and print official records</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
+            🖨️ Print Report
+          </button>
+          <button onclick="alert('CSV exported successfully!')" class="px-4 py-2 text-xs font-semibold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs">
+            📥 Export CSV
+          </button>
+        </div>
+      </div>
+      <div class="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-900 text-base">Monthly Waste Collection Summary (Audit Log)</h3>
+        <p class="text-xs text-slate-500">Total volume hauled over 2026: <strong>142.8 tons across 52 vehicle dispatches</strong>.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT FOR TABS & CHARTS -->
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.classList.remove('bg-emerald-600', 'text-white');
+        el.classList.add('text-slate-600', 'hover:bg-slate-100');
+      });
+
+      document.getElementById('view-' + tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('tab-' + tabId);
+      activeBtn.classList.add('bg-emerald-600', 'text-white');
+      activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+    }
+
+    // Initialize Charts on Load
+    window.onload = function() {
+      // 1. Waste Type Bar Chart
+      new Chart(document.getElementById('wasteTypeChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Organic', 'Plastic', 'Paper', 'Glass', 'Metal', 'E-Waste'],
+          datasets: [{
+            label: 'Tonnage (tons)',
+            data: [18.2, 8.5, 5.2, 3.4, 2.8, 1.9],
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'],
+            borderRadius: 6
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      // 2. Monthly Trend Line Chart
+      new Chart(document.getElementById('monthlyTrendChart'), {
+        type: 'line',
+        data: {
+          labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep'],
+          datasets: [{
+            label: 'Collection Volume (tons)',
+            data: [28.5, 31.2, 35.8, 38.4, 40.4],
+            borderColor: '#059669',
+            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    };
+  </script>
+</body>
+</html>
