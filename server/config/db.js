@@ -52,37 +52,8 @@ const connectDB = async () => {
       return conn;
     } catch (error) {
       cachedPromise = null;
-      console.warn(`⚠️ Could not connect to primary MongoDB URI (${uri}): ${error.message}`);
-
-      // If running on Vercel, in-memory mongodb is not supported
-      if (isVercel) {
-        console.error('❌ Vercel Serverless Environment: In-memory MongoDB fallback cannot run.');
-        console.error('👉 Please configure MONGO_URI in your Vercel Project Settings > Environment Variables.');
-        throw new Error('Database connection failed. Please configure MONGO_URI in Vercel environment variables.');
-      }
-
-      console.log('🔄 Attempting fallback to in-memory MongoDB for offline/local demonstration...');
-      try {
-        const { MongoMemoryServer } = require('mongodb-memory-server');
-        const mongod = await MongoMemoryServer.create({
-          instance: {
-            dbName: 'municipal_waste_management'
-          }
-        });
-        const memoryUri = mongod.getUri();
-        const conn = await mongoose.connect(memoryUri);
-        console.log(`✅ Connected to Embedded MongoMemoryServer at ${memoryUri}`);
-
-        // Auto seed in-memory database if empty
-        const { seedDatabase } = require('../seed/seedData');
-        await seedDatabase();
-        console.log('✅ Embedded database auto-seeded successfully with demo records!');
-        cachedConnection = conn;
-        return conn;
-      } catch (memError) {
-        console.error(`❌ Fatal: Could not establish MongoDB connection: ${memError.message}`);
-        throw error;
-      }
+      console.warn(`⚠️ Could not connect to MongoDB URI (${uri}): ${error.message}`);
+      return null;
     }
   })();
 

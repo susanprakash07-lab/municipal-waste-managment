@@ -12,8 +12,8 @@
     "dev": "concurrently --kill-others-on-fail -n \"SERVER,CLIENT\" -c \"blue.bold,green.bold\" \"npm run server\" \"npm run client\"",
     "single": "node app.js",
     "start": "node app.js",
-    "build": "npm --prefix client install --include=dev && npm --prefix client run build",
-    "vercel-build": "npm --prefix client install --include=dev && npm --prefix client run build"
+    "build": "npm --prefix client install --include=dev && npm --prefix client run build && node -e \"const fs=require('fs'); fs.cpSync('client/dist', 'dist', {recursive:true});\"",
+    "vercel-build": "npm --prefix client install --include=dev && npm --prefix client run build && node -e \"const fs=require('fs'); fs.cpSync('client/dist', 'dist', {recursive:true});\""
   },
   "keywords": [
     "mern",
