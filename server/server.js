@@ -46,24 +46,34 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Ensure database is connected for every incoming request (serverless compatible)
+// Serve pre-built React frontend static files
+const clientDist = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDist));
+
+// Ensure database is connected for API requests
 app.use(async (req, res, next) => {
-  if (req.method === 'OPTIONS' || req.path === '/api/health' || req.path === '/health') {
+  // Fast path: skip database check for options, health checks, or static assets
+  if (
+    req.method === 'OPTIONS' ||
+    req.path.includes('health') ||
+    !req.path.startsWith('/api')
+  ) {
     return next();
   }
+
   try {
-    await connectDB();
+    const conn = await connectDB();
+    if (!conn && process.env.VERCEL) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. Please configure MONGO_URI in your Vercel Project Settings > Environment Variables.',
+        hint: 'Add your MongoDB Atlas connection string in Vercel.'
+      });
+    }
     next();
   } catch (err) {
     console.error('Database connection middleware error:', err.message);
-    if (process.env.VERCEL && !process.env.MONGO_URI) {
-      return res.status(503).json({
-        success: false,
-        message: 'Database not connected. Please configure MONGO_URI in your Vercel Environment Variables.',
-        hint: 'Add your MongoDB Atlas connection string in Vercel Project Settings > Environment Variables.'
-      });
-    }
-    return res.status(500).json({
+    return res.status(503).json({
       success: false,
       message: 'Failed to establish database connection.',
       error: err.message
@@ -74,7 +84,7 @@ app.use(async (req, res, next) => {
 // API Router definition (mounted on both '/api' and '/' for seamless Vercel rewrites)
 const apiRouter = express.Router();
 
-// Base health check
+// Base health check (responds instantly with 0ms DB dependency)
 apiRouter.get('/health', (req, res) => {
   res.status(200).json({
     status: 'online',
@@ -100,12 +110,34 @@ apiRouter.use('/search', searchRoutes);
 app.use('/api', apiRouter);
 app.use('/', apiRouter);
 
-// Catch 404 routes
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `API endpoint '${req.originalUrl}' not found on this server.`
-  });
+// Frontend SPA Catch-all: serve index.html for all non-API paths
+app.get('*', (req, res) => {
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({
+      success: false,
+      message: `API endpoint '${req.originalUrl}' not found on this server.`
+    });
+  }
+  const indexPath = path.join(clientDist, 'index.html');
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Municipal Waste Management System</title>
+      <style>body{font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f0fdf4;color:#166534;text-align:center;padding:20px;}a{color:#0284c7;text-decoration:none;font-weight:600;}</style>
+    </head>
+    <body>
+      <h1>🌿 Digital Tracking System for Municipal Waste Management</h1>
+      <p>Server is running in online cloud mode.</p>
+      <p><a href="/api/health">Check API Health &rarr;</a></p>
+    </body>
+    </html>
+  `);
 });
 
 // Centralized error handler

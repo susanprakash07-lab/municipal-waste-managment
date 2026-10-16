@@ -17,13 +17,20 @@ const connectDB = async () => {
     return cachedPromise;
   }
 
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/municipal_waste_management';
   const isVercel = Boolean(process.env.VERCEL);
+  const uri = process.env.MONGO_URI;
+
+  if (isVercel && !uri) {
+    console.warn('⚠️ MONGO_URI is not set in Vercel environment variables. Running in demo mode.');
+    return null;
+  }
+
+  const finalUri = uri || 'mongodb://127.0.0.1:27017/municipal_waste_management';
 
   cachedPromise = (async () => {
     try {
-      const conn = await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 8000,
+      const conn = await mongoose.connect(finalUri, {
+        serverSelectionTimeoutMS: 4000,
       });
       console.log(`✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
       cachedConnection = conn;
