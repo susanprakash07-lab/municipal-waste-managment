@@ -32,6 +32,18 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/municipal_
 
 // Security & Body Parsers
 app.disable('x-powered-by');
+// Normalize request URL if rewritten by Vercel
+app.use((req, res, next) => {
+  if (req.url && req.url.includes('index.js')) {
+    if (req.originalUrl && !req.originalUrl.includes('index.js')) {
+      req.url = req.originalUrl;
+    } else {
+      req.url = req.url.replace(/\/api\/index\.js/g, '/api').replace(/\/index\.js/g, '') || '/';
+    }
+  }
+  next();
+});
+
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false, crossOriginOpenerPolicy: false, hidePoweredBy: false }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
