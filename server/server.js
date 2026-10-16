@@ -25,6 +25,14 @@ const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
+// Normalize request URL if rewritten by Vercel Edge
+app.use((req, res, next) => {
+  if (req.headers && req.headers['x-matched-path']) {
+    req.url = req.headers['x-matched-path'];
+  }
+  next();
+});
+
 // Security and utility middleware
 app.use(helmet({
   contentSecurityPolicy: false,

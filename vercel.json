@@ -3,6 +3,12 @@
   "version": 2,
   "buildCommand": "npm --prefix client install --include=dev && npm --prefix client run build",
   "outputDirectory": "client/dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "server/**",
+      "maxDuration": 15
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
