@@ -31,7 +31,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_municipal_waste_mgmt_
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/municipal_waste_management';
 
 // Security & Body Parsers
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
+app.disable('x-powered-by');
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false, crossOriginOpenerPolicy: false, hidePoweredBy: false }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -154,11 +155,20 @@ app.delete('/api/users/:id', protect, authorize('ADMIN'), userController.deleteU
 const clientDistPath = path.join(__dirname, 'client/dist');
 app.use(express.static(clientDistPath));
 
+const fs = require('fs');
 app.get('*', (req, res) => {
   if (req.originalUrl.startsWith('/api')) {
     return res.status(404).json({ success: false, message: 'API route not found' });
   }
-  res.sendFile(path.join(clientDistPath, 'index.html'));
+  const indexPath = path.join(clientDistPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  const rootDistPath = path.join(__dirname, 'dist/index.html');
+  if (fs.existsSync(rootDistPath)) {
+    return res.sendFile(rootDistPath);
+  }
+  res.status(200).send(`<!DOCTYPE html><html><head><title>Municipal Waste Management</title></head><body><h1>Municipal Waste Management System</h1><p><a href="/api/health">Check API Health</a></p></body></html>`);
 });
 
 // ==========================================
@@ -195,4 +205,8 @@ const start = async () => {
   }
 };
 
-start();
+if (require.main === module) {
+  start();
+}
+
+module.exports = app;
